@@ -2,62 +2,209 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>BMI 计算器</title>
+    <title>BMI计算器</title>
     <style>
-        body {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 20px auto;
+        }
+
+        body {
+            background-image: url('https://source.unsplash.com/random/1200x600?bmi');
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .calculator-container {
+            position: relative;
+            max-width: 400px;
+            margin: 50px auto;
             padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
             text-align: center;
+            margin-bottom: 30px;
+            color: #333;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid # border-bottom color-tertiary;
-            padding: 8px;
-            text-align: left;
-        }
+
         .input-group {
-            margin-bottom: 15px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #f8f9fa;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #e9ecef;
+            transform: scale(1.05);
+        }
+
+        .calculator-info {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .result {
+            width: 100%;
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+
+        .calculator-details {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 4px;
+        }
+
+        .calculator-details p {
+            margin-bottom: 5px;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-    <h2>BMI 计算器</h2>
-    
-    <div class="input-group">
-        <label for="weight">体重（千克）：</label>
-        <input type="number" id="weight" step="0.1" required>
+    <div class="calculator-container">
+        <h2>BMI计算器</h2>
+
+        <div class="input-group">
+            <label>体重（千克）：</label>
+            <input type="number" id="weight" step="0.1" required>
+        </div>
+
+        <div class="input-group">
+            <label>身高（米）：</label>
+            <input type="number" id="height" step="0.01" required>
+        </div>
+
+        <button onclick="calculateBMI()">计算 BMI</button>
+
+        <div class="calculator-info">
+            <p>等待计算...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+
+        <div class="calculator-details">
+            <p>BMI结果：您的BMI值为多少。</p>
+            <p>根据BMI结果，您可以处于以下健康状况：</p>
+            <ul style="color: #666; margin-left: 20px;">
+                <li>低于18.5：过轻</li>
+                <li>18.5-24.9：正常体重</li>
+                <li>25.0-29.9：超重</li>
+                <li>30.0及以上：肥胖</li>
+            </ul>
+        </div>
     </div>
-
-    <div class="input-group">
-        <label for="height">身高（米）：</label>
-        <input type="number" id="height" step="0.01" required>
-    </div>
-
-    <button onclick="calculateBMI()">计算 BMI</button>
-
-    <div id="result"></div>
 
     <script>
         function calculateBMI() {
             const weight = parseFloat(document.getElementById('weight').value);
             const height = parseFloat(document.getElementById('height').value);
 
-            if (isNaN(weight) || isNaN(height)) {
-                alert("请输入有效的数值！");
-                return;
+            if (weight || height) {
+                const bmi = weight / (height * height);
+                document.getElementById('result').innerHTML = `<strong>BMI结果：您的BMI值为${bmi.toFixed(1)}。</strong><br><br>`;
+                
+                let status = '';
+                if (bmi < 18.5) {
+                    status = '过轻';
+                } else if (bmi >= 18.5 && bmi < 25) {
+                    status = '正常体重';
+                } else if (bmi >= 25 && bmi < 30) {
+                    status = '超重';
+                } else {
+                    status = '肥胖';
+                }
+
+                document.getElementById('result').innerHTML += `<p>根据BMI结果，您可以处于以下健康状况：</p>`;
+                
+                const resultDiv = document.querySelector('.calculator-details p');
+                resultDiv.innerHTML = `
+                    <strong>BMI值：${bmi.toFixed(1)}</strong><br>
+                    <strong>健康状况：</strong><strong>${status}</strong><br>
+                    <strong>建议：</strong>根据您的BMI值，您可以适当调整饮食和运动以维持健康体重。
+                `;
             }
-
-            const bmi = weight / (height * height);
-            let result = bmi.toFixed(2); // 保留两位小数
-            document.getElementById('result').innerHTML = `BMI: ${result}`;
         }
-    </script>
 
+        // 加载计算过程的动画效果
+        const progressBar = document.createElement('div');
+        progressBar.className = 'calculator-details';
+        progressBar.style.width = '0%';
+        progressBar.style.height = '20px';
+        progressBar.style.backgroundColor = '#e9ecef';
+        progressBar.style.borderRadius = '4px';
+
+        const resultDiv = document.getElementById('result');
+
+        function animateProgressBar() {
+            const currentWeight = parseFloat(document.getElementById('weight').value);
+            const maxWeight = (parseFloat(document.getElementById('height').value)) * 1.70 / Math.sqrt(25);
+
+            if (!currentWeight) return;
+
+            const progress = ((maxWeight - currentWeight) / maxWeight) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            resultDiv.innerHTML += `<div class="calculator-details p">${progress.toFixed(1)}%</div>`;
+        }
+
+        // 初始加载状态
+        document.getElementById('result').innerHTML = `
+            <h2>BMI计算器</h2>
+            <p>等待计算...</p>
+        `;
+
+        const interval = setInterval(() => {
+            animateProgressBar();
+        }, 30);
+
+        clearInterval(interval);
+    </script>
 </body>
 </html>
+

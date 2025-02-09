@@ -2,124 +2,112 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一款介绍网站的产品示例</title>
+    <title>BMI 计算器</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f0f0f0;
-        }
-        h1 {
-            color: #333;
-        }
-        .container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             padding: 20px;
+            background-color: #f0f0f0;
+        }
+
+        .container {
             background-color: white;
-            border-radius: 5px;
+            padding: 20px;
+            border-radius: 10px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h2 {
-            color: #666;
-        }
-        p {
-            line-height: 1.6;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>我们的产品，值得信赖！</h1>
-        
-        <!-- 图片插入位置 -->
-        <img src="path_to_image1.jpg" alt="图片描述" style="border-radius: 5px; max-width: 200px;">
-        <img src="path_to_image2.jpg" alt="图片描述" style="border-radius: 5px; max-width: 200px;">
-        
-        <!-- 剩余内容 -->
-        <h2>简介</h2>
-        <p>我们的产品是经过精心设计和开发的创新解决方案，旨在满足您的需求。</p>
-        <h2>功能亮点</h2>
-        <ul>
-            <li>核心功能一：简明扼要的功能概述</li>
-            <li>核心功能二：详细描述功能特点</li>
-            <li>核心功能三：突出显示优势和独特之处</li>
-        </ul>
-        <h2>适用场景</h2>
-        <p>我们的产品适用于以下场景：</p>
-        <ul>
-            <li>场景一：简要说明应用场景</li>
-            <li>场景二：详细描述第二个适用场景</li>
-        </ul>
-    </div>
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一款介绍网站的产品示例</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f0f0f0;
-        }
+
         h1 {
-            color: #333;
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>一款介绍网站的产品示例</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f0f0f0;
-        }
-        h1 {
-            color: #333;
             text-align: center;
+            color: #333;
+            margin-bottom: 20px;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: white;
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h2 {
-            color: #666;
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
         }
-        p {
-            line-height: 1.6;
-            margin-bottom: 10px;
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>我们的产品，值得信赖！</h1>
-        <h2>简介</h2>
-        <p>我们的产品是经过精心设计和开发的创新解决方案，旨在满足您的需求。</p>
-        <h2>功能亮点</h2>
-        <ul>
-            <li>核心功能一：简明扼要的功能概述</li>
-            <li>核心功能二：详细描述功能特点</li>
-            <li>核心功能三：突出显示优势和独特之处</li>
-        </ul>
-        <h2>适用场景</h2>
-        <p>我们的产品适用于以下场景：</p>
-        <ul>
-            <li>场景一：简要说明应用场景</li>
-            <li>场景二：详细描述第二个适用场景</li>
-        </ul>
+        <h1>BMI 计算器</h1>
+        
+        <div class="input-group">
+            <input type="number" id="weight" placeholder="请输入体重（公斤）">
+        </div>
+
+        <div class="input-group">
+            <input type="number" id="height" placeholder="请输入身高（米）">
+        </div>
+
+        <button onclick="calculateBMI()">计算 BMI</button>
+
+        <div id="result" class="result"></div>
     </div>
+
+    <script>
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+
+            if (weight && height) {
+                const bmi = weight / (height * height);
+                document.getElementById('result').innerHTML = `
+                    <h2>BMI结果：${bmi.toFixed(1)}</h2>
+                    <div class="result">
+                        <p style="font-weight: bold;">
+                            根据BMI值，以下是健康建议：
+                        </p>
+                        <ul>
+                            <li>
+                                <strong>BMI < 18.5:</strong> 身体过瘦。建议增加热量摄入，适量运动。
+                            </li>
+                            <li>
+                                <strong>18.5 ≤ BMI ≤ 24.9:</strong> 健康体重范围。继续保持良好生活方式。
+                            </li>
+                            <li>
+                                <strong>BMI ≥ 25:</strong> 超重或肥胖。建议减少热量摄入，增加运动。
+                            </li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        // 初始化事件监听
+        document.getElementById('result').innerHTML = '';
+    </script>
 </body>
 </html>

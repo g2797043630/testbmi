@@ -1,113 +1,280 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>BMI 计算器</title>
+    <title>神奇粒子乐园</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f0f0f0;
+            background: linear-gradient(45deg, #1a1a1a, #4a4a4a);
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            transition: background 0.5s;
         }
 
-        .container {
-            background-color: white;
-            padding: 20px;
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
         }
 
         button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
+            background: #00ff88;
             border: none;
+            padding: 8px 15px;
+            margin: 5px;
             border-radius: 5px;
             cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
+            transition: 0.3s;
         }
 
         button:hover {
-            background-color: #45a049;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px #00ff88;
         }
 
-        .result {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
+        #score {
+            font-size: 24px;
+            color: #00ff88;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        .egg-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 5em;
+            color: #ff69b4;
+            text-shadow: 0 0 20px #ff1493;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999;
+            animation: eggPop 2s forwards;
+        }
+
+        .restart-btn {
+            position: fixed;
+            top: 60%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            font-size: 1.5em;
+            background: #ff1493;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            opacity: 0;
+            transition: 0.5s;
+            z-index: 1000;
+            display: none;
+        }
+
+        .restart-btn.show {
+            opacity: 1;
+            display: block;
+        }
+
+        @keyframes eggPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+            70% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>BMI 计算器</h1>
-        
-        <div class="input-group">
-            <input type="number" id="weight" placeholder="请输入体重（公斤）">
-        </div>
-
-        <div class="input-group">
-            <input type="number" id="height" placeholder="请输入身高（米）">
-        </div>
-
-        <button onclick="calculateBMI()">计算 BMI</button>
-
-        <div id="result" class="result"></div>
+    <div class="controls">
+        <button onclick="changeColors()">随机配色</button>
+        <button onclick="toggleAnimation()">暂停/开始</button>
+        <p id="score">分数: 0</p>
     </div>
+    <button class="restart-btn" onclick="restartGame()">重新开始</button>
 
     <script>
-        function calculateBMI() {
-            const weight = parseFloat(document.getElementById('weight').value);
-            const height = parseFloat(document.getElementById('height').value);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        document.body.appendChild(canvas);
 
-            if (weight && height) {
-                const bmi = weight / (height * height);
-                document.getElementById('result').innerHTML = `
-                    <h2>BMI结果：${bmi.toFixed(1)}</h2>
-                    <div class="result">
-                        <p style="font-weight: bold;">
-                            根据BMI值，以下是健康建议：
-                        </p>
-                        <ul>
-                            <li>
-                                <strong>BMI < 18.5:</strong> 身体过瘦。建议增加热量摄入，适量运动。
-                            </li>
-                            <li>
-                                <strong>18.5 ≤ BMI ≤ 24.9:</strong> 健康体重范围。继续保持良好生活方式。
-                            </li>
-                            <li>
-                                <strong>BMI ≥ 25:</strong> 超重或肥胖。建议减少热量摄入，增加运动。
-                            </li>
-                        </ul>
-                    </div>
-                `;
+        let particles = [];
+        let score = 0;
+        let animationId;
+        let isAnimating = true;
+        let hasTriggered = false;
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createParticles(100);
+            animate();
+        }
+
+        function createParticles(num) {
+            for (let i = 0; i < num; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 5 + 2,
+                    color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                    speedX: Math.random() * 2 - 1,
+                    speedY: Math.random() * 2 - 1
+                });
             }
         }
 
-        // 初始化事件监听
-        document.getElementById('result').innerHTML = '';
+        function animate() {            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach(particle => {
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+
+                if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
+
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color;
+                ctx.fill();
+            });
+
+            if(isAnimating) {
+                animationId = requestAnimationFrame(animate);
+            }
+        }
+
+        // 修改为每次点击+20分
+        canvas.addEventListener('click', (e) => {
+            if(hasTriggered) return;
+
+            const pos = {
+                x: e.clientX,
+                y: e.clientY
+            };
+
+            particles = particles.filter(particle => {
+                const distance = Math.hypot(particle.x - pos.x, particle.y - pos.y);
+                if (distance < particle.size * 3) {
+                    score += 20; // 修改为每次+20分
+                    document.getElementById('score').textContent = `分数: ${score}`;
+                    
+                    if (score >= 520 && !hasTriggered) {
+                        triggerEgg();
+                        hasTriggered = true;
+                    }
+                    
+                    createExplosion(particle.x, particle.y);
+                    return false;
+                }
+                return true;
+            });
+        });
+
+        function createExplosion(x, y) {
+            for (let i = 0; i < 10; i++) {
+                particles.push({
+                    x,
+                    y,
+                    size: Math.random() * 3 + 1,
+                    color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+                    speedX: (Math.random() - 0.5) * 10,
+                    speedY: (Math.random() - 0.5) * 10
+                });
+            }
+        }
+
+        function changeColors() {
+            if(hasTriggered) return;
+            particles.forEach(particle => {
+                particle.color = `hsl(${Math.random() * 360}, 70%, 50%)`;
+            });
+        }
+
+        function toggleAnimation() {
+            if(hasTriggered) return;
+            isAnimating = !isAnimating;
+            if (isAnimating) animate();
+        }
+
+        function triggerEgg() {
+            isAnimating = false;
+            cancelAnimationFrame(animationId);
+            
+            particles = [];
+            
+            // 创建永久爱心粒子
+            for (let i = 0; i < 520; i++) {
+                const angle = (i / 520) * Math.PI * 2;
+                const curve = 2 - 2 * Math.sin(angle) + 
+                    Math.sin(angle)*Math.sqrt(Math.abs(Math.cos(angle)))/(Math.sin(angle)+1.4);
+                
+                particles.push({
+                    x: canvas.width/2,
+                    y: canvas.height/2,
+                    size: Math.random() * 4 + 2,
+                    color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+                    speedX: Math.cos(angle) * curve * (Math.random() * 3 + 2),
+                    speedY: Math.sin(angle) * curve * (Math.random() * 3 + 2)
+                });
+            }
+
+            // 永久显示彩蛋文字
+            const eggText = document.createElement('div');
+            eggText.className = 'egg-message';
+            eggText.textContent = '小康同学通关了！！！❤';
+            document.body.appendChild(eggText);
+
+            // 显示重新开始按钮
+            document.querySelector('.restart-btn').classList.add('show');
+            
+            // 永久改变背景
+            document.body.style.background = 'linear-gradient(45deg, #ff1493, #ff69b4)';
+            
+            // 禁用控制按钮
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.disabled = true;
+            });
+            
+            // 启动彩蛋动画
+            animate();
+        }
+
+        function restartGame() {
+            score = 0;
+            hasTriggered = false;
+            particles = [];
+            
+            document.querySelector('.egg-message')?.remove();
+            document.querySelector('.restart-btn').classList.remove('show');
+            document.body.style.background = 'linear-gradient(45deg, #1a1a1a, #4a4a4a)';
+            document.getElementById('score').textContent = '分数: 0';
+            
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.disabled = false;
+            });
+            
+            init();
+        }
+
+        window.addEventListener('resize', init);
+        init();
     </script>
 </body>
 </html>
